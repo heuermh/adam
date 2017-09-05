@@ -51,6 +51,7 @@ object Timers extends Metrics {
   val LoadPairedFastq = timer("Load paired FASTQ format")
   val LoadPairedFastqFragments = timer("Load paired FASTQ format as Fragments")
   val LoadParquet = timer("Load Parquet + Avro format")
+  val LoadSra = timer("Load SRA format")
   val LoadUnpairedFastq = timer("Load unpaired FASTQ format")
   val LoadVcf = timer("Load VCF format")
 

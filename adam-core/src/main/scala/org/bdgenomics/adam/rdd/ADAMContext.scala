@@ -18,7 +18,13 @@
 package org.bdgenomics.adam.rdd
 
 import java.io.{ File, FileNotFoundException, InputStream }
-import htsjdk.samtools.{ SAMFileHeader, SAMProgramRecord, ValidationStringency }
+import htsjdk.samtools.{
+  SAMFileHeader,
+  SAMProgramRecord,
+  SRAFileReader,
+  ValidationStringency
+}
+import htsjdk.samtools.sra.SRAAccession
 import htsjdk.samtools.util.Locatable
 import htsjdk.variant.vcf.{
   VCFHeader,
@@ -1700,6 +1706,58 @@ class ADAMContext(@transient val sc: SparkContext) extends Serializable with Log
       seqDict,
       readGroups,
       programs)
+  }
+
+  def loadSra(
+    sraAccession: String,
+    validationStringency: ValidationStringency = ValidationStringency.STRICT): AlignmentRecordRDD = LoadSra.time {
+
+    // samjdk.sra_libraries_download=true
+    System.setProperty("samjdk.sra_libraries_download", "true")
+    /*
+     Don't think this is going to work...
+
+scala> val reads = sc.loadSra("SRR353866")
+Error: Could not find or load main class gov.nih.nlm.ncbi.ngs.LibVersionChecker
+Error: Could not find or load main class gov.nih.nlm.ncbi.ngs.LibVersionChecker
+java.io.IOException: Server returned HTTP response code: 403 for URL: http://trace.ncbi.nlm.nih.gov/Traces/sratoolkit/sratoolkit.cgi
+ngs-java: Failed to download ngs-sdk from NCBI
+ngs-java: Loading of ngs-sdk library failed
+INFO	2017-09-05 10:06:15	SRAAccession	SRA initialization failed. Will not be able to read from SRA
+gov.nih.nlm.ncbi.ngs.error.cause.ConnectionProblemCause: auto-download failed - connection problem
+  at gov.nih.nlm.ncbi.ngs.LibManager.searchLibrary(LibManager.java:658)
+  at gov.nih.nlm.ncbi.ngs.LibManager.loadLibrary(LibManager.java:332)
+  at gov.nih.nlm.ncbi.ngs.Manager.<init>(Manager.java:103)
+  at gov.nih.nlm.ncbi.ngs.NGS.<clinit>(NGS.java:120)
+  at htsjdk.samtools.sra.SRAAccession.checkIfInitialized(SRAAccession.java:96)
+  at htsjdk.samtools.sra.SRAAccession.isValid(SRAAccession.java:138)
+  at htsjdk.samtools.sra.SRAAccession.isValid(SRAAccession.java:169)
+  at htsjdk.samtools.SRAFileReader.<init>(SRAFileReader.java:63)
+  at org.bdgenomics.adam.rdd.ADAMContext$$anonfun$loadSra$1.apply(ADAMContext.scala:1600)
+  at org.bdgenomics.adam.rdd.ADAMContext$$anonfun$loadSra$1.apply(ADAMContext.scala:1594)
+  at scala.Option.fold(Option.scala:158)
+  at org.apache.spark.rdd.Timer.time(Timer.scala:48)
+  at org.bdgenomics.adam.rdd.ADAMContext.loadSra(ADAMContext.scala:1594)
+  ... 50 elided
+     */
+
+    val accession = new SRAAccession(sraAccession)
+    val sraFileReader = new SRAFileReader(accession)
+    //sraFileReader.setValidationStringency(validationStringency) shit, package private!
+
+    val samHeader = sraFileReader.getFileHeader()
+    val sd = loadBamDictionary(samHeader)
+    val rg = loadBamReadGroups(samHeader)
+    val pgs = loadBamPrograms(samHeader)
+
+    val records = sc.parallelize(sraFileReader.getIterator().toSeq)
+    if (Metrics.isRecording) records.instrument() else records
+    val samRecordConverter = new SAMRecordConverter
+
+    AlignmentRecordRDD(records.map(samRecordConverter.convert(_)),
+      sd,
+      rg,
+      pgs)
   }
 
   /**
