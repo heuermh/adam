@@ -349,7 +349,7 @@ trait GenomicDataset[T, U <: Product, V <: GenomicDataset[T, U, V]] extends Logg
    *
    * @param pathName The path to save metadata to.
    */
-  protected def saveMetadata(pathName: String): Unit = {
+  def saveMetadata(pathName: String): Unit = {
     saveSequences(pathName)
   }
 
@@ -3484,7 +3484,7 @@ abstract class AvroReadGroupGenomicDataset[T <% IndexedRecord: Manifest, U <: Pr
       processingSteps)
   }
 
-  override protected def saveMetadata(pathName: String): Unit = {
+  override def saveMetadata(pathName: String): Unit = {
     savePartitionMap(pathName)
     saveProcessingSteps(pathName)
     saveSequences(pathName)
@@ -3756,7 +3756,7 @@ private[rdd] trait VCFSupportingGenomicDataset[T, U <: Product, V <: VCFSupporti
 abstract class MultisampleAvroGenomicDataset[T <% IndexedRecord: Manifest, U <: Product, V <: MultisampleAvroGenomicDataset[T, U, V]] extends AvroGenomicDataset[T, U, V]
     with MultisampleGenomicDataset[T, U, V] {
 
-  override protected def saveMetadata(pathName: String): Unit = {
+  override def saveMetadata(pathName: String): Unit = {
     savePartitionMap(pathName)
     saveSequences(pathName)
     saveSamples(pathName)
@@ -3858,7 +3858,7 @@ abstract class AvroGenomicDataset[T <% IndexedRecord: Manifest, U <: Product, V 
    *
    * @param pathName The filepath to the file where we will save the Metadata.
    */
-  override protected def saveMetadata(pathName: String): Unit = {
+  override def saveMetadata(pathName: String): Unit = {
     savePartitionMap(pathName)
     saveSequences(pathName)
   }

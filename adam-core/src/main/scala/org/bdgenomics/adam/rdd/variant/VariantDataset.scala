@@ -313,7 +313,7 @@ sealed abstract class VariantDataset extends AvroGenomicDataset[Variant, Variant
       false)
   }
 
-  override protected def saveMetadata(filePath: String): Unit = {
+  override def saveMetadata(filePath: String): Unit = {
     savePartitionMap(filePath)
     saveSequences(filePath)
     saveVcfHeaders(filePath)

@@ -188,7 +188,7 @@ object VariantContextConverter {
     }
   }
 
-  private[adam] def cleanAndMixInSupportedLines(
+  def cleanAndMixInSupportedLines(
     headerLines: Seq[VCFHeaderLine],
     stringency: ValidationStringency,
     log: Logger): Seq[VCFHeaderLine] = {
@@ -263,11 +263,24 @@ object VariantContextConverter {
     }) ++ DefaultHeaderLines.allHeaderLines
   }
 
-  private[adam] def headerLines(header: VCFHeader): Seq[VCFHeaderLine] = {
+  def headerLines(header: VCFHeader): Seq[VCFHeaderLine] = {
     (header.getFilterLines ++
       header.getFormatHeaderLines ++
       header.getInfoHeaderLines ++
       header.getOtherHeaderLines).toSeq
+  }
+
+  def sequences(header: VCFHeader): SequenceDictionary = {
+    SequenceDictionary.fromVCFHeader(header)
+  }
+
+  def samples(header: VCFHeader): Seq[Sample] = {
+    asScalaBuffer(header.getGenotypeSamples)
+      .map(s => {
+        Sample.newBuilder()
+          .setId(s)
+          .build()
+      }).toSeq
   }
 
   def apply(headerLines: Seq[VCFHeaderLine],

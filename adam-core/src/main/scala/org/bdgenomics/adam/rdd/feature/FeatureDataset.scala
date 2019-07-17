@@ -454,7 +454,7 @@ sealed abstract class FeatureDataset extends AvroGenomicDataset[Feature, Feature
    *
    * @param pathName The path name to save meta data for this FeatureDataset.
    */
-  override protected def saveMetadata(pathName: String): Unit = {
+  override def saveMetadata(pathName: String): Unit = {
     savePartitionMap(pathName)
     saveSequences(pathName)
     saveSamples(pathName)

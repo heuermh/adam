@@ -238,11 +238,11 @@ class AlignmentConverter extends Serializable {
    * @return Returns the record converted to htsjdk format. Can be used for output to SAM/BAM.
    */
   def convert(adamRecord: Alignment,
-              header: SAMFileHeader,
+              header: SAMFileHeaderWritable,
               rgd: ReadGroupDictionary): SAMRecord = ConvertToSAMRecord.time {
 
     // attach header
-    val builder: SAMRecord = new SAMRecord(header)
+    val builder: SAMRecord = new SAMRecord(header.header)
 
     // set canonically necessary fields
     builder.setReadName(adamRecord.getReadName)

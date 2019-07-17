@@ -41,7 +41,16 @@ import org.bdgenomics.adam.algorithms.consensus.{
 }
 import org.bdgenomics.adam.converters.AlignmentConverter
 import org.bdgenomics.adam.instrumentation.Timers._
-import org.bdgenomics.adam.models._
+import org.bdgenomics.adam.models.{
+  Coverage,
+  ReadGroupDictionary,
+  ReferencePosition,
+  ReferenceRegion,
+  ReferenceRegionSerializer,
+  SAMFileHeaderWritable,
+  SequenceDictionary,
+  SnpTable
+}
 import org.bdgenomics.adam.rdd.ADAMContext._
 import org.bdgenomics.adam.rdd._
 import org.bdgenomics.adam.rdd.feature.{
@@ -185,6 +194,18 @@ object AlignmentDataset extends Serializable {
     RDDBoundAlignmentDataset(rdd,
       sequences,
       readGroups,
+      processingSteps,
+      None)
+  }
+
+  def apply(rdd: RDD[Alignment],
+            references: Seq[Reference],
+            readGroups: Seq[ReadGroup],
+            processingSteps: Seq[ProcessingStep]): AlignmentDataset = {
+
+    RDDBoundAlignmentDataset(rdd,
+      SequenceDictionary.fromAvro(references),
+      ReadGroupDictionary.fromAvro(readGroups),
       processingSteps,
       None)
   }
@@ -732,7 +753,7 @@ sealed abstract class AlignmentDataset extends AvroReadGroupGenomicDataset[Align
     header.setProgramRecords(pgRecords.asJava)
 
     // broadcast for efficiency
-    val hdrBcast = rdd.context.broadcast(header)
+    val hdrBcast = rdd.context.broadcast(SAMFileHeaderWritable(header))
 
     // map across RDD to perform conversion
     val convertedRDD: RDD[SAMRecordWritable] = rdd.map(r => {

@@ -807,7 +807,7 @@ class ADAMContextSuite extends ADAMFunSuite {
     val input = testFile("small.sam")
     val samHeader = SAMHeaderReader.readSAMHeaderFrom(new Path(input),
       sc.hadoopConfiguration)
-    val programs = sc.loadBamPrograms(samHeader)
+    val programs = sc.loadBamProcessingSteps(samHeader)
     assert(programs.size === 2)
     val firstPg = programs.filter(_.getPreviousId == null)
     assert(firstPg.size === 1)

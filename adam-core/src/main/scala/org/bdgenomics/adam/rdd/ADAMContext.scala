@@ -1604,7 +1604,7 @@ class ADAMContext(@transient val sc: SparkContext) extends Serializable with Log
    * @param samHeader The header to extract a sequence dictionary from.
    * @return Returns the dictionary converted to an ADAM model.
    */
-  private[rdd] def loadBamDictionary(samHeader: SAMFileHeader): SequenceDictionary = {
+  def loadBamReferences(samHeader: SAMFileHeader): SequenceDictionary = {
     SequenceDictionary(samHeader)
   }
 
@@ -1612,7 +1612,7 @@ class ADAMContext(@transient val sc: SparkContext) extends Serializable with Log
    * @param samHeader The header to extract a read group dictionary from.
    * @return Returns the dictionary converted to an ADAM model.
    */
-  private[rdd] def loadBamReadGroups(samHeader: SAMFileHeader): ReadGroupDictionary = {
+  def loadBamReadGroups(samHeader: SAMFileHeader): ReadGroupDictionary = {
     ReadGroupDictionary.fromSAMHeader(samHeader)
   }
 
@@ -1620,7 +1620,7 @@ class ADAMContext(@transient val sc: SparkContext) extends Serializable with Log
    * @param samHeader The header to extract processing lineage from.
    * @return Returns the dictionary converted to an Avro model.
    */
-  private[rdd] def loadBamPrograms(
+  def loadBamProcessingSteps(
     samHeader: SAMFileHeader): Seq[ProcessingStep] = {
     val pgs = samHeader.getProgramRecords().toSeq
     pgs.map(ADAMContext.convertSAMProgramRecord)
@@ -2018,9 +2018,9 @@ class ADAMContext(@transient val sc: SparkContext) extends Serializable with Log
             sc.hadoopConfiguration.set(SAMHeaderReader.VALIDATION_STRINGENCY_PROPERTY, stringency.toString)
             val samHeader = SAMHeaderReader.readSAMHeaderFrom(fp, sc.hadoopConfiguration)
             info("Loaded header from " + fp)
-            val sd = loadBamDictionary(samHeader)
+            val sd = loadBamReferences(samHeader)
             val rg = loadBamReadGroups(samHeader)
-            val pgs = loadBamPrograms(samHeader)
+            val pgs = loadBamProcessingSteps(samHeader)
             Some((sd, rg, pgs))
           } catch {
             case e: Throwable => {
@@ -2142,9 +2142,9 @@ class ADAMContext(@transient val sc: SparkContext) extends Serializable with Log
           val samHeader = SAMHeaderReader.readSAMHeaderFrom(fp, sc.hadoopConfiguration)
 
           info("Loaded header from " + fp)
-          val sd = loadBamDictionary(samHeader)
+          val sd = loadBamReferences(samHeader)
           val rg = loadBamReadGroups(samHeader)
-          val pgs = loadBamPrograms(samHeader)
+          val pgs = loadBamProcessingSteps(samHeader)
 
           Some((sd, rg, pgs))
         } catch {

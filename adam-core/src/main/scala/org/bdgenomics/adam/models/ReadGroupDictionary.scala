@@ -38,6 +38,10 @@ object ReadGroupDictionary {
     new ReadGroupDictionary(readGroups.map(ReadGroup(_)))
   }
 
+  def fromAvro(readGroups: Seq[ReadGroupMetadata]): ReadGroupDictionary = {
+    new ReadGroupDictionary(readGroups.map(rgm => ReadGroup.fromAvro(rgm)))
+  }
+
   /**
    * @return Returns a read group dictionary that contains no read groups.
    */

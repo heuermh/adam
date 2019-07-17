@@ -17,14 +17,12 @@
  */
 package org.bdgenomics.adam.converters
 
-import htsjdk.samtools.{
-  SAMFileHeader,
-  SamReaderFactory
-}
+import htsjdk.samtools.SamReaderFactory
 import java.io.File
 import org.bdgenomics.adam.models.{
   ReadGroupDictionary,
   ReadGroup,
+  SAMFileHeaderWritable,
   SequenceDictionary,
   SequenceRecord
 }
@@ -81,7 +79,8 @@ class AlignmentConverterSuite extends FunSuite {
 
     // convert read
     val toSAM = adamRecordConverter.convert(adamRead,
-      adamRecordConverter.createSAMHeader(dict, readGroups),
+      SAMFileHeaderWritable(adamRecordConverter.createSAMHeader(dict,
+        readGroups)),
       readGroups)
 
     // validate conversion
@@ -123,7 +122,8 @@ class AlignmentConverterSuite extends FunSuite {
 
     // convert read
     val toSAM = adamRecordConverter.convert(adamRead,
-      adamRecordConverter.createSAMHeader(dict, readGroups),
+      SAMFileHeaderWritable(adamRecordConverter.createSAMHeader(dict,
+        readGroups)),
       readGroups)
 
     // validate conversion

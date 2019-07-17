@@ -349,7 +349,7 @@ sealed abstract class GenotypeDataset extends MultisampleAvroGenomicDataset[Geno
       false)
   }
 
-  override protected def saveMetadata(filePath: String): Unit = {
+  override def saveMetadata(filePath: String): Unit = {
     savePartitionMap(filePath)
     saveSequences(filePath)
     saveSamples(filePath)

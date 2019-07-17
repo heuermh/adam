@@ -269,7 +269,7 @@ sealed abstract class VariantContextDataset extends MultisampleGenomicDataset[Va
       false)
   }
 
-  override protected def saveMetadata(filePath: String): Unit = {
+  override def saveMetadata(filePath: String): Unit = {
     saveSequences(filePath)
     saveSamples(filePath)
     saveVcfHeaders(filePath)

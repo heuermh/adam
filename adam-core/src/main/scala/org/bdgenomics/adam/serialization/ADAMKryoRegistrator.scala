@@ -24,6 +24,7 @@ import com.esotericsoftware.kryo.io.{
   Output
 }
 import com.esotericsoftware.kryo.{ Kryo, Serializer }
+import com.esotericsoftware.kryo.serializers.JavaSerializer
 import grizzled.slf4j.Logging
 import it.unimi.dsi.fastutil.io.{ FastByteArrayInputStream, FastByteArrayOutputStream }
 import org.apache.avro.io.{ BinaryDecoder, BinaryEncoder, DecoderFactory, EncoderFactory }
@@ -90,7 +91,7 @@ class WritableSerializer[T <: Writable] extends Serializer[T] {
   }
 }
 
-class ADAMKryoRegistrator extends KryoRegistrator with Logging {
+class ADAMKryoRegistrator extends ADAMJavaKryoRegistrator with Logging {
 
   override def registerClasses(kryo: Kryo) {
 
@@ -104,31 +105,36 @@ class ADAMKryoRegistrator extends KryoRegistrator with Logging {
       }
     }
 
+    super.registerClasses(kryo)
+
     // Register Avro classes using fully qualified class names
     // Sort alphabetically and add blank lines between packages
 
+    //kryo.register(classOf[org.disq_bio.disq.HtsjdkReadsRdd])
+
     // htsjdk.samtools
-    kryo.register(classOf[htsjdk.samtools.CigarElement])
-    kryo.register(classOf[htsjdk.samtools.CigarOperator])
-    kryo.register(classOf[htsjdk.samtools.Cigar])
-    kryo.register(classOf[htsjdk.samtools.SAMProgramRecord])
-    kryo.register(classOf[htsjdk.samtools.SAMReadGroupRecord])
-    kryo.register(classOf[htsjdk.samtools.SAMSequenceDictionary])
-    kryo.register(classOf[htsjdk.samtools.SAMFileHeader])
-    kryo.register(classOf[htsjdk.samtools.SAMSequenceRecord])
-    registerByName(kryo, "htsjdk.samtools.SAMFileHeader$GroupOrder")
-    registerByName(kryo, "htsjdk.samtools.SAMFileHeader$SortOrder")
+    //kryo.register(classOf[htsjdk.samtools.CigarElement])
+    //kryo.register(classOf[htsjdk.samtools.CigarOperator])
+    //kryo.register(classOf[htsjdk.samtools.Cigar])
+    //kryo.register(classOf[htsjdk.samtools.SAMProgramRecord])
+    //kryo.register(classOf[htsjdk.samtools.SAMReadGroupRecord])
+    //kryo.register(classOf[htsjdk.samtools.SAMSequenceDictionary])
+    //kryo.register(classOf[htsjdk.samtools.SAMFileHeader])
+    kryo.register(classOf[htsjdk.samtools.SAMFileHeader], new JavaSerializer())
+    //kryo.register(classOf[htsjdk.samtools.SAMSequenceRecord])
+    //registerByName(kryo, "htsjdk.samtools.SAMFileHeader$GroupOrder")
+    //registerByName(kryo, "htsjdk.samtools.SAMFileHeader$SortOrder")
 
     // htsjdk.variant.vcf
-    kryo.register(classOf[htsjdk.variant.vcf.VCFContigHeaderLine])
-    kryo.register(classOf[htsjdk.variant.vcf.VCFFilterHeaderLine])
-    kryo.register(classOf[htsjdk.variant.vcf.VCFFormatHeaderLine])
-    kryo.register(classOf[htsjdk.variant.vcf.VCFInfoHeaderLine])
-    kryo.register(classOf[htsjdk.variant.vcf.VCFHeader])
-    kryo.register(classOf[htsjdk.variant.vcf.VCFHeaderLine])
-    kryo.register(classOf[htsjdk.variant.vcf.VCFHeaderLineCount])
-    kryo.register(classOf[htsjdk.variant.vcf.VCFHeaderLineType])
-    registerByName(kryo, "htsjdk.variant.vcf.VCFCompoundHeaderLine$SupportedHeaderLineType")
+    //kryo.register(classOf[htsjdk.variant.vcf.VCFContigHeaderLine])
+    //kryo.register(classOf[htsjdk.variant.vcf.VCFFilterHeaderLine])
+    //kryo.register(classOf[htsjdk.variant.vcf.VCFFormatHeaderLine])
+    //kryo.register(classOf[htsjdk.variant.vcf.VCFInfoHeaderLine])
+    //kryo.register(classOf[htsjdk.variant.vcf.VCFHeader])
+    //kryo.register(classOf[htsjdk.variant.vcf.VCFHeaderLine])
+    //kryo.register(classOf[htsjdk.variant.vcf.VCFHeaderLineCount])
+    //kryo.register(classOf[htsjdk.variant.vcf.VCFHeaderLineType])
+    //registerByName(kryo, "htsjdk.variant.vcf.VCFCompoundHeaderLine$SupportedHeaderLineType")
 
     // java.lang
     kryo.register(classOf[java.lang.Class[_]])
@@ -303,9 +309,12 @@ class ADAMKryoRegistrator extends KryoRegistrator with Logging {
     kryo.register(classOf[org.apache.spark.sql.catalyst.expressions.UnsafeRow])
 
     // org.apache.spark.sql
-    registerByName(kryo, "org.apache.spark.sql.execution.datasources.FileFormatWriter$WriteTaskResult")
+
     registerByName(kryo, "org.apache.spark.sql.execution.datasources.BasicWriteTaskStats")
     registerByName(kryo, "org.apache.spark.sql.execution.datasources.ExecutedWriteSummary")
+    registerByName(kryo, "org.apache.spark.sql.execution.datasources.FileFormatWriter$WriteTaskResult")
+    registerByName(kryo, "org.apache.spark.sql.execution.datasources.InMemoryFileIndex$SerializableFileStatus")
+    registerByName(kryo, "org.apache.spark.sql.execution.datasources.InMemoryFileIndex$SerializableBlockLocation")
     registerByName(kryo, "org.apache.spark.sql.execution.datasources.WriteTaskResult")
     registerByName(kryo, "org.apache.spark.sql.types.BooleanType$")
     registerByName(kryo, "org.apache.spark.sql.types.DoubleType$")
