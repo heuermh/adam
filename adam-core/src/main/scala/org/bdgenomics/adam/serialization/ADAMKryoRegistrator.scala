@@ -307,6 +307,7 @@ class ADAMKryoRegistrator extends KryoRegistrator with Logging {
     registerByName(kryo, "org.apache.spark.sql.execution.datasources.BasicWriteTaskStats")
     registerByName(kryo, "org.apache.spark.sql.execution.datasources.ExecutedWriteSummary")
     registerByName(kryo, "org.apache.spark.sql.execution.datasources.WriteTaskResult")
+    registerByName(kryo, "org.apache.spark.sql.types.BinaryType$")
     registerByName(kryo, "org.apache.spark.sql.types.BooleanType$")
     registerByName(kryo, "org.apache.spark.sql.types.DoubleType$")
     registerByName(kryo, "org.apache.spark.sql.types.FloatType$")

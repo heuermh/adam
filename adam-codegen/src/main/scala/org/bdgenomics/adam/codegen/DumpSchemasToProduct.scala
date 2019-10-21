@@ -40,6 +40,7 @@ class DumpSchemasToProduct extends Generator {
   }
 
   private def getType(schema: Schema): String = schema.getType match {
+    case Schema.Type.BYTES   => "Array[Byte]"
     case Schema.Type.DOUBLE  => "Double"
     case Schema.Type.FLOAT   => "Float"
     case Schema.Type.INT     => "Int"
@@ -84,6 +85,7 @@ class DumpSchemasToProduct extends Generator {
   }
 
   private def conversion(schema: Schema, mapFn: String): String = schema.getType match {
+    case Schema.Type.BYTES   => ".%s(bytes => java.nio.ByteBuffer.wrap(bytes))".format(mapFn)
     case Schema.Type.DOUBLE  => ".%s(d => d: java.lang.Double)".format(mapFn)
     case Schema.Type.FLOAT   => ".%s(f => f: java.lang.Float)".format(mapFn)
     case Schema.Type.INT     => ".%s(i => i: java.lang.Integer)".format(mapFn)
@@ -105,6 +107,7 @@ class DumpSchemasToProduct extends Generator {
             getUnionType(field.schema).getType match {
               case Schema.Type.RECORD => "    %s.foreach(field => record.set%s(field.toAvro))".format(name, name.capitalize)
               case Schema.Type.ENUM   => "    %s.foreach(field => record.set%s(%s.valueOf(field)))".format(name, name.capitalize, getUnionType(field.schema).getFullName)
+              case Schema.Type.BYTES  => "    %s.foreach(field => record.set%s(java.nio.ByteBuffer.wrap(field)))".format(name, name.capitalize)
               case Schema.Type.DOUBLE | Schema.Type.FLOAT |
                 Schema.Type.INT | Schema.Type.LONG |
                 Schema.Type.BOOLEAN | Schema.Type.STRING => "    %s.foreach(field => record.set%s(field))".format(name, name.capitalize)
@@ -152,6 +155,7 @@ class DumpSchemasToProduct extends Generator {
   }
 
   private def getConversion(schema: Schema, mapFn: String): String = schema.getType match {
+    case Schema.Type.BYTES   => ".%s(byteBuffer => byteBuffer.array)".format(mapFn)
     case Schema.Type.DOUBLE  => ".%s(d => d: Double)".format(mapFn)
     case Schema.Type.FLOAT   => ".%s(f => f: Float)".format(mapFn)
     case Schema.Type.INT     => ".%s(i => i: Int)".format(mapFn)
@@ -173,7 +177,7 @@ class DumpSchemasToProduct extends Generator {
             getUnionType(field.schema).getType match {
               case Schema.Type.RECORD => "      Option(record.get%s).map(field => %s.fromAvro(field))".format(name.capitalize, getUnionType(field.schema).getName)
               case Schema.Type.ENUM   => "      Option(record.get%s).map(field => field.toString)".format(name.capitalize)
-              case Schema.Type.DOUBLE | Schema.Type.FLOAT |
+              case Schema.Type.BYTES | Schema.Type.DOUBLE | Schema.Type.FLOAT |
                 Schema.Type.INT | Schema.Type.LONG |
                 Schema.Type.BOOLEAN | Schema.Type.STRING => "    Option(record.get%s)%s".format(name.capitalize, getConversion(getUnionType(field.schema), "map"))
               case other => throw new IllegalStateException("Unsupported type %s.".format(other))
